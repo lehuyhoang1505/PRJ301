@@ -40,6 +40,7 @@
     Welcome, <strong><%= currentUser != null ? currentUser.getUsername() : "" %></strong> |
     <a href="${pageContext.request.contextPath}/users">My Profile</a> |
     <a href="${pageContext.request.contextPath}/cart">View Cart</a> |
+    <a href="${pageContext.request.contextPath}/orders">My Orders</a> |
     <a href="${pageContext.request.contextPath}/logout">Logout</a>
 </nav>
 

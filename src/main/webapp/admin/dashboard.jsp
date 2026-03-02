@@ -22,6 +22,7 @@
         .card.blue   .count { color: #2196f3; }
         .card.green  .count { color: #4caf50; }
         .card.orange .count { color: #ff9800; }
+        .card.purple .count { color: #9c27b0; }
         .links h2 { margin-bottom: 12px; }
         .links ul { list-style: none; padding: 0; }
         .links ul li { margin-bottom: 8px; }
@@ -39,6 +40,7 @@
     int totalUsers     = (Integer) request.getAttribute("totalUsers");
     int totalProducts  = (Integer) request.getAttribute("totalProducts");
     int totalSuppliers = (Integer) request.getAttribute("totalSuppliers");
+    int totalOrders    = (Integer) request.getAttribute("totalOrders");
 %>
 
 <h1>Admin Dashboard</h1>
@@ -49,6 +51,7 @@
     <a href="${pageContext.request.contextPath}/admin/users">Users</a> |
     <a href="${pageContext.request.contextPath}/admin/products">Products</a> |
     <a href="${pageContext.request.contextPath}/admin/suppliers">Suppliers</a> |
+    <a href="${pageContext.request.contextPath}/admin/orders">Orders</a> |
     <a href="${pageContext.request.contextPath}/logout">Logout</a>
 </nav>
 
@@ -65,6 +68,10 @@
         <div class="count"><%= totalSuppliers %></div>
         <div class="label">Suppliers</div>
     </div>
+    <div class="card purple">
+        <div class="count"><%= totalOrders %></div>
+        <div class="label">Orders</div>
+    </div>
 </div>
 
 <div class="links">
@@ -73,6 +80,7 @@
         <li><a href="${pageContext.request.contextPath}/admin/users">&#9654; Manage Users</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/products">&#9654; Manage Products</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/suppliers">&#9654; Manage Suppliers</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/orders">&#9654; Manage Orders</a></li>
     </ul>
 </div>
 </body>

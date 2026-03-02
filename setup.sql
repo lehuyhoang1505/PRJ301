@@ -81,3 +81,61 @@ INSERT INTO Products (name, price, description, stock, importDate, category, sup
     (N'Desk Lamp LED',        18.00,  N'Dimmable LED desk lamp with USB port',     90, '2026-02-01', N'Accessories',   3),
     (N'Notebook A5',           3.99,  N'80-page hardcover A5 notebook',            500, '2026-02-10', N'Stationery',  NULL);
 GO
+
+-- ====== Orders Table ======
+CREATE TABLE Orders
+(
+    id         INT IDENTITY(1,1) PRIMARY KEY,
+    userId     INT           NOT NULL REFERENCES Users(userId),
+    totalPrice FLOAT         NOT NULL DEFAULT 0,
+    status     NVARCHAR(20)  NOT NULL DEFAULT 'Pending'
+        CHECK (status IN (N'Pending', N'Processing', N'Shipped', N'Delivered',
+                          N'Completed', N'Cancelled', N'Deleted'))
+);
+GO
+
+-- ====== OrderDetails Table ======
+CREATE TABLE OrderDetails
+(
+    id          INT IDENTITY(1,1) PRIMARY KEY,
+    orderId     INT           NOT NULL REFERENCES Orders(id),
+    productId   INT           NULL     REFERENCES Products(id),
+    productName NVARCHAR(100) NOT NULL,
+    quantity    INT           NOT NULL DEFAULT 1,
+    price       FLOAT         NOT NULL DEFAULT 0
+);
+GO
+
+-- ====== Sample Data: Orders ======
+-- user1 (userId=2): 2 orders
+-- user2 (userId=3): 1 order
+INSERT INTO Orders (userId, totalPrice, status) VALUES
+    (2, 65.98,  N'Completed'),   -- order 1: user1
+    (2, 22.50,  N'Shipped'),     -- order 2: user1
+    (3, 247.99, N'Pending'),     -- order 3: user2
+    (3, 8.50,   N'Cancelled');   -- order 4: user2
+GO
+
+-- ====== Sample Data: OrderDetails ======
+-- Order 1 (user1, Completed): Wireless Mouse x2 + Mechanical Keyboard x1
+INSERT INTO OrderDetails (orderId, productId, productName, quantity, price) VALUES
+    (1, 1, N'Wireless Mouse',      2, 15.99),
+    (1, 2, N'Mechanical Keyboard', 1, 49.99);
+GO
+
+-- Order 2 (user1, Shipped): Laptop Stand x1
+INSERT INTO OrderDetails (orderId, productId, productName, quantity, price) VALUES
+    (2, 4, N'Laptop Stand', 1, 22.50);
+GO
+
+-- Order 3 (user2, Pending): Office Chair x1 + Webcam 1080p x1 + Notebook A5 x1
+INSERT INTO OrderDetails (orderId, productId, productName, quantity, price) VALUES
+    (3, 5, N'Office Chair',  1, 199.00),
+    (3, 7, N'Webcam 1080p',  1,  39.99),
+    (3, 10, N'Notebook A5',  2,   3.99);
+GO
+
+-- Order 4 (user2, Cancelled): HDMI Cable 2m x1
+INSERT INTO OrderDetails (orderId, productId, productName, quantity, price) VALUES
+    (4, 8, N'HDMI Cable 2m', 1, 8.50);
+GO

@@ -5,6 +5,8 @@
         <class>models.User</class>
         <class>models.Supplier</class>
         <class>models.Product</class>
+        <class>models.Order</class>
+        <class>models.OrderDetail</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>

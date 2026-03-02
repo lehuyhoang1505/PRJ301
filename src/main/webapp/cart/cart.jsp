@@ -23,6 +23,7 @@
         .btn-save   { background: #4caf50; color: white; border-color: #4caf50; }
         .btn-remove { background: #f44336; color: white; border-color: #f44336; }
         .btn-shop   { background: #1565c0; color: white; border-color: #1565c0; }
+        .btn-checkout { background: #2e7d32; color: white; border-color: #2e7d32; }
         .total-row td { font-weight: bold; }
         .empty-msg { color: #777; margin-top: 15px; }
     </style>
@@ -39,6 +40,7 @@
 <nav>
     Welcome, <strong><%= currentUser != null ? currentUser.getUsername() : "" %></strong> |
     <a href="${pageContext.request.contextPath}/products">Continue Shopping</a> |
+    <a href="${pageContext.request.contextPath}/orders">My Orders</a> |
     <a href="${pageContext.request.contextPath}/users">My Profile</a> |
     <a href="${pageContext.request.contextPath}/logout">Logout</a>
 </nav>
@@ -102,6 +104,10 @@
     <div style="margin-top: 15px;">
         <a href="${pageContext.request.contextPath}/products" class="btn btn-shop">
             Continue Shopping
+        </a>
+        <a href="${pageContext.request.contextPath}/checkout" class="btn btn-checkout"
+           style="margin-left: 10px;">
+            Proceed to Checkout
         </a>
     </div>
 <% } %>

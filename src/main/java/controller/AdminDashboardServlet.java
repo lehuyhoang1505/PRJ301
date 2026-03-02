@@ -6,6 +6,8 @@ import jakarta.servlet.http.*;
 import services.ProductService;
 import services.SupplierService;
 import services.UserService;
+import services.OrderService;
+import services.OrderServiceImpl;
 import java.io.IOException;
 
 /**
@@ -18,6 +20,7 @@ public class AdminDashboardServlet extends HttpServlet {
     private final UserService userService         = new UserService();
     private final ProductService productService   = new ProductService();
     private final SupplierService supplierService = new SupplierService();
+    private final OrderService orderService       = new OrderServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,6 +29,7 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("totalUsers",     userService.getAllUsers().size());
         request.setAttribute("totalProducts",  productService.findAll().size());
         request.setAttribute("totalSuppliers", supplierService.findAll().size());
+        request.setAttribute("totalOrders",    orderService.getAllOrders().size());
 
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }
