@@ -1,0 +1,206 @@
+package services;
+
+import dao.UserDAO;
+import models.User;
+import java.time.LocalDate;
+import java.util.List;
+
+public class UserService {
+
+    private final UserDAO userDAO = new UserDAO();
+
+    public User login(String username, String password) {
+        return userDAO.login(username, password);
+    }
+
+    public List<User> getAllUsers() {
+        return userDAO.getAllUsers();
+    }
+
+    public List<User> searchUserByName(String keyword) {
+        return userDAO.searchUserByName(keyword);
+    }
+
+    public User findById(Integer userId) {
+        return userDAO.findById(userId);
+    }
+
+    public User findByUsername(String username) {
+        return userDAO.findByUsername(username);
+    }
+
+    public User findByEmail(String email) {
+        return userDAO.findByEmail(email);
+    }
+
+    /**
+     * Register a new user with role "user".
+     */
+    public void register(String username, String password,
+                         String name, String gender, LocalDate dateOfBirth,
+                         String phone, String email) {
+        validateUsername(username);
+        if (password == null || password.length() < 3) {
+            throw new IllegalArgumentException("Password must be at least 3 characters");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Full name is required");
+        }
+        if (gender == null || (!"male".equals(gender) && !"female".equals(gender) && !"other".equals(gender))) {
+            throw new IllegalArgumentException("Gender must be male, female, or other");
+        }
+        if (dateOfBirth == null) {
+            throw new IllegalArgumentException("Date of birth is required");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (findByUsername(username) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (findByEmail(email.trim()) != null) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        User user = new User(username.trim(), password, "user",
+                             name.trim(), gender, dateOfBirth,
+                             (phone != null && !phone.trim().isEmpty()) ? phone.trim() : null,
+                             email.trim());
+        userDAO.insertUser(user);
+    }
+
+    /**
+     * Admin: create a user with any role.
+     */
+    public void createUser(String username, String password, String role,
+                           String name, String gender, LocalDate dateOfBirth,
+                           String phone, String email) {
+        validateUserInput(username, password, role);
+        validateProfileInput(name, gender, dateOfBirth, email);
+        if (findByUsername(username) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (findByEmail(email.trim()) != null) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        userDAO.insertUser(new User(username.trim(), password, role.trim().toLowerCase(),
+                name.trim(), gender, dateOfBirth,
+                (phone != null && !phone.trim().isEmpty()) ? phone.trim() : null,
+                email.trim()));
+    }
+
+    /**
+     * Admin: update any user.
+     */
+    public void updateUser(Integer userId, String username, String password, String role,
+                           String name, String gender, LocalDate dateOfBirth,
+                           String phone, String email) {
+        if (userId == null) throw new IllegalArgumentException("User ID is required");
+        validateUserInput(username, password, role);
+        validateProfileInput(name, gender, dateOfBirth, email);
+        User existing = findById(userId);
+        if (existing == null) throw new IllegalArgumentException("User not found");
+        User byUsername = findByUsername(username.trim());
+        if (byUsername != null && !byUsername.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        User byEmail = findByEmail(email.trim());
+        if (byEmail != null && !byEmail.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        existing.setUsername(username.trim());
+        existing.setPassword(password);
+        existing.setRole(role.trim().toLowerCase());
+        existing.setName(name.trim());
+        existing.setGender(gender);
+        existing.setDateOfBirth(dateOfBirth);
+        existing.setPhone((phone != null && !phone.trim().isEmpty()) ? phone.trim() : null);
+        existing.setEmail(email.trim());
+        userDAO.updateUser(existing);
+    }
+
+    /**
+     * User: update own profile (role unchanged).
+     */
+    public void updateOwnProfile(Integer userId, String username, String password,
+                                  String name, String gender, LocalDate dateOfBirth,
+                                  String phone, String email) {
+        if (userId == null) throw new IllegalArgumentException("User ID is required");
+        validateUsername(username);
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+        validateProfileInput(name, gender, dateOfBirth, email);
+        User existing = findById(userId);
+        if (existing == null) throw new IllegalArgumentException("User not found");
+        User byUsername = findByUsername(username.trim());
+        if (byUsername != null && !byUsername.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        User byEmail = findByEmail(email.trim());
+        if (byEmail != null && !byEmail.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        existing.setUsername(username.trim());
+        existing.setPassword(password);
+        existing.setName(name.trim());
+        existing.setGender(gender);
+        existing.setDateOfBirth(dateOfBirth);
+        existing.setPhone((phone != null && !phone.trim().isEmpty()) ? phone.trim() : null);
+        existing.setEmail(email.trim());
+        userDAO.updateUser(existing);
+    }
+
+    /**
+     * User deletes their own account (self-deletion allowed).
+     */
+    public void deleteOwnAccount(Integer userId) {
+        if (userId == null) throw new IllegalArgumentException("User ID is required");
+        userDAO.deleteUser(userId);
+    }
+
+    /**
+     * Delete user, preventing self-deletion.
+     */
+    public void deleteUser(Integer userId, Integer currentUserId) {
+        if (userId == null) throw new IllegalArgumentException("User ID is required");
+        if (currentUserId != null && currentUserId.equals(userId)) {
+            throw new IllegalArgumentException("You cannot delete yourself");
+        }
+        userDAO.deleteUser(userId);
+    }
+
+    private void validateProfileInput(String name, String gender, LocalDate dateOfBirth, String email) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Full name is required");
+        }
+        if (gender == null || (!"male".equals(gender) && !"female".equals(gender) && !"other".equals(gender))) {
+            throw new IllegalArgumentException("Gender must be male, female, or other");
+        }
+        if (dateOfBirth == null) {
+            throw new IllegalArgumentException("Date of birth is required");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+    }
+
+    private void validateUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+    }
+
+    private void validateUserInput(String username, String password, String role) {
+        validateUsername(username);
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+        if (role == null || role.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        String r = role.trim().toLowerCase();
+        if (!"admin".equals(r) && !"user".equals(r)) {
+            throw new IllegalArgumentException("Role must be 'admin' or 'user'");
+        }
+    }
+}
