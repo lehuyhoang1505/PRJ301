@@ -5,7 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import models.User;
 import services.UserService;
-import util.EmailService;
+import services.EmailService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
