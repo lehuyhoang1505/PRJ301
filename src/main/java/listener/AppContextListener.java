@@ -26,6 +26,8 @@ public class AppContextListener implements ServletContextListener {
                         .load();
                 String apiKey = dotenv.get("RESEND_API_KEY", "");
                 System.setProperty("RESEND_API_KEY", apiKey);
+                String sendDomain = dotenv.get("RESEND_SEND_DOMAIN", "resend.dev");
+                System.setProperty("RESEND_SEND_DOMAIN", sendDomain);
                 System.out.println("AppContextListener: .env loaded from " + webInfPath);
             } catch (Exception e) {
                 System.err.println("AppContextListener: failed to load .env - " + e.getMessage());
