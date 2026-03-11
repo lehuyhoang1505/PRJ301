@@ -1,11 +1,13 @@
 package util;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import models.User;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  * Utility class for internationalization support. Provides methods to get
@@ -19,6 +21,16 @@ public class I18nUtil {
     private static final int COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
     private static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
+    private final HttpServletRequest request;
+
+    public I18nUtil(HttpServletRequest request) {
+        this.request = request;
+    }
+
+    public String get(String key) {
+        return getMessage(request, key);
+    }
+
     /**
      * Get the current locale based on priority: 1. User's database preference
      * (if logged in) 2. Session language 3. Cookie language 4. Browser
@@ -26,13 +38,14 @@ public class I18nUtil {
      */
     public static Locale getLocale(HttpServletRequest request) {
         // Priority 1: Check logged-in user's preference
-        User user = (User) request.getSession().getAttribute("user");
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
         if (user != null && user.getPreferredLanguage() != null) {
             return Locale.forLanguageTag(user.getPreferredLanguage());
         }
 
         // Priority 2: Check session
-        String lang = (String) request.getSession().getAttribute(LANGUAGE_SESSION_KEY);
+        String lang = (session != null) ? (String) session.getAttribute(LANGUAGE_SESSION_KEY) : null;
         if (lang != null && !lang.isEmpty()) {
             return Locale.forLanguageTag(lang);
         }

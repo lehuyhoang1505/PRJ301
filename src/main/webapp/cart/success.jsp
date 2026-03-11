@@ -75,19 +75,30 @@
     </head>
 
     <body>
-        <% // ── Detect which flow landed here ────────────────────────────────────── // VNPay return: request
-            attributes set by VNPayReturnServlet (forward) Boolean vnpaySuccess=(Boolean)
-            request.getAttribute("vnpaySuccess"); boolean isVnpay=(vnpaySuccess !=null); // COD flow: session attributes
-            set by CheckoutServlet (redirect) Integer codOrderId=(Integer) session.getAttribute("lastOrderId"); String
-            codPayment=(String) session.getAttribute("lastPaymentMethod"); if (!isVnpay) {
-            session.removeAttribute("lastOrderId"); session.removeAttribute("lastPaymentMethod"); } if (isVnpay) { // ──
-            VNPay result branch ──────────────────────────────────────────── String orderId=(String)
-            request.getAttribute("vnpayOrderId"); String transNo=(String) request.getAttribute("vnpayTransactionNo");
-            String bankCode=(String) request.getAttribute("vnpayBankCode"); String amountRaw=(String)
-            request.getAttribute("vnpayAmount"); String responseCode=(String) request.getAttribute("vnpayResponseCode");
-            boolean validSig=Boolean.TRUE.equals(request.getAttribute("vnpayValidSig")); long displayAmount=0; try { if
-            (amountRaw !=null) displayAmount=Long.parseLong(amountRaw) / 100L; } catch (Exception ignored) {} if
-            (vnpaySuccess) { %>
+        <%
+            // VNPay return: request attributes set by VNPayReturnServlet (forward)
+            Boolean vnpaySuccess = (Boolean) request.getAttribute("vnpaySuccess");
+            boolean isVnpay = (vnpaySuccess != null);
+            // COD flow: session attributes set by CheckoutServlet (redirect)
+            Integer codOrderId = (Integer) session.getAttribute("lastOrderId");
+            String codPayment = (String) session.getAttribute("lastPaymentMethod");
+            if (!isVnpay) {
+                session.removeAttribute("lastOrderId");
+                session.removeAttribute("lastPaymentMethod");
+            }
+            if (isVnpay) {
+                // VNPay result branch
+                String orderId = (String) request.getAttribute("vnpayOrderId");
+                String transNo = (String) request.getAttribute("vnpayTransactionNo");
+                String bankCode = (String) request.getAttribute("vnpayBankCode");
+                String amountRaw = (String) request.getAttribute("vnpayAmount");
+                String responseCode = (String) request.getAttribute("vnpayResponseCode");
+                boolean validSig = Boolean.TRUE.equals(request.getAttribute("vnpayValidSig"));
+                long displayAmount = 0;
+                try {
+                    if (amountRaw != null) displayAmount = Long.parseLong(amountRaw) / 100L;
+                } catch (Exception ignored) {}
+                if (vnpaySuccess) { %>
             <div class="box">
                 <div class="tick">&#10004;</div>
                 <h1 class="ok">${i18n.get('success.paymentSuccess')}</h1>

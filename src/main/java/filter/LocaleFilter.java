@@ -1,13 +1,17 @@
 package filter;
 
-import jakarta.servlet.*;
+import java.io.IOException;
+import java.util.ResourceBundle;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import util.I18nUtil;
-
-import java.io.IOException;
-import java.util.ResourceBundle;
 
 /**
  * Filter that sets the locale and resource bundle for each request. Makes i18n
@@ -36,7 +40,7 @@ public class LocaleFilter implements Filter {
 
             request.setAttribute("bundle", bundle);
             request.setAttribute("currentLang", currentLang);
-            request.setAttribute("i18n", new I18nHelper(httpRequest));
+            request.setAttribute("i18n", new I18nUtil(httpRequest));
         }
 
         chain.doFilter(request, response);

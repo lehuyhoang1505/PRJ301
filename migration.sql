@@ -228,6 +228,150 @@ PRINT '  1. Restart your application'
 PRINT '  2. Test password recovery at /forgot-password'
 PRINT '  3. Test language switching with the dropdown'
 PRINT '  4. Login - your language choice will be saved automatically'
+GO
+
+-- =====================================================
+-- PART 6: Address Book Feature
+-- =====================================================
+
+PRINT 'Creating Provinces table...'
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'Provinces') AND type = 'U')
+BEGIN
+    CREATE TABLE Provinces (
+        id       INT           IDENTITY(1,1) PRIMARY KEY,
+        nameVi   NVARCHAR(100) NOT NULL,
+        nameEn   NVARCHAR(100) NOT NULL,
+        isActive BIT           NOT NULL DEFAULT 1
+    );
+    PRINT N'✓ Provinces table created'
+END
+ELSE
+    PRINT N'⚠ Provinces table already exists - skipping'
+GO
+
+PRINT 'Creating UserAddresses table...'
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'UserAddresses') AND type = 'U')
+BEGIN
+    CREATE TABLE UserAddresses (
+        id            INT           IDENTITY(1,1) PRIMARY KEY,
+        userId        INT           NOT NULL REFERENCES Users(userId) ON DELETE CASCADE,
+        fullName      NVARCHAR(100) NOT NULL,
+        phone         NVARCHAR(15)  NOT NULL,
+        provinceId    INT           NOT NULL REFERENCES Provinces(id),
+        district      NVARCHAR(100) NOT NULL,
+        ward          NVARCHAR(100) NOT NULL,
+        addressDetail NVARCHAR(255) NOT NULL,
+        isDefault     BIT           NOT NULL DEFAULT 0,
+        createdAt     DATE          NOT NULL DEFAULT CAST(GETDATE() AS DATE)
+    );
+    PRINT N'✓ UserAddresses table created'
+END
+ELSE
+    PRINT N'⚠ UserAddresses table already exists - skipping'
+GO
+
+PRINT 'Adding shipping snapshot columns to Orders table...'
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Orders') AND name = 'shippingFullName')
+BEGIN
+    ALTER TABLE Orders ADD
+        shippingFullName NVARCHAR(100) NULL,
+        shippingPhone    NVARCHAR(15)  NULL,
+        shippingProvince NVARCHAR(100) NULL,
+        shippingDistrict NVARCHAR(100) NULL,
+        shippingWard     NVARCHAR(100) NULL,
+        shippingAddress  NVARCHAR(255) NULL;
+    PRINT N'✓ Shipping snapshot columns added to Orders'
+END
+ELSE
+    PRINT N'⚠ Shipping snapshot columns already exist - skipping'
+GO
+
+PRINT 'Seeding 63 provinces of Vietnam...'
+GO
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM Provinces)
+BEGIN
+    INSERT INTO Provinces (nameVi, nameEn) VALUES
+    (N'An Giang',                   N'An Giang'),
+    (N'Bà Rịa - Vũng Tàu',         N'Ba Ria - Vung Tau'),
+    (N'Bắc Giang',                  N'Bac Giang'),
+    (N'Bắc Kạn',                    N'Bac Kan'),
+    (N'Bạc Liêu',                   N'Bac Lieu'),
+    (N'Bắc Ninh',                   N'Bac Ninh'),
+    (N'Bến Tre',                     N'Ben Tre'),
+    (N'Bình Định',                   N'Binh Dinh'),
+    (N'Bình Dương',                  N'Binh Duong'),
+    (N'Bình Phước',                  N'Binh Phuoc'),
+    (N'Bình Thuận',                  N'Binh Thuan'),
+    (N'Cà Mau',                      N'Ca Mau'),
+    (N'Cần Thơ',                     N'Can Tho'),
+    (N'Cao Bằng',                    N'Cao Bang'),
+    (N'Thành phố Đà Nẵng',          N'Da Nang City'),
+    (N'Đắk Lắk',                    N'Dak Lak'),
+    (N'Đắk Nông',                   N'Dak Nong'),
+    (N'Điện Biên',                   N'Dien Bien'),
+    (N'Đồng Nai',                   N'Dong Nai'),
+    (N'Đồng Tháp',                  N'Dong Thap'),
+    (N'Gia Lai',                    N'Gia Lai'),
+    (N'Hà Giang',                   N'Ha Giang'),
+    (N'Hà Nam',                     N'Ha Nam'),
+    (N'Thành phố Hà Nội',           N'Hanoi City'),
+    (N'Hà Tĩnh',                    N'Ha Tinh'),
+    (N'Hải Dương',                  N'Hai Duong'),
+    (N'Thành phố Hải Phòng',        N'Hai Phong City'),
+    (N'Hậu Giang',                  N'Hau Giang'),
+    (N'Hòa Bình',                   N'Hoa Binh'),
+    (N'Hưng Yên',                   N'Hung Yen'),
+    (N'Khánh Hòa',                  N'Khanh Hoa'),
+    (N'Kiên Giang',                 N'Kien Giang'),
+    (N'Kon Tum',                    N'Kon Tum'),
+    (N'Lai Châu',                   N'Lai Chau'),
+    (N'Lâm Đồng',                   N'Lam Dong'),
+    (N'Lạng Sơn',                   N'Lang Son'),
+    (N'Lào Cai',                    N'Lao Cai'),
+    (N'Long An',                    N'Long An'),
+    (N'Nam Định',                   N'Nam Dinh'),
+    (N'Nghệ An',                    N'Nghe An'),
+    (N'Ninh Bình',                  N'Ninh Binh'),
+    (N'Ninh Thuận',                 N'Ninh Thuan'),
+    (N'Phú Thọ',                    N'Phu Tho'),
+    (N'Phú Yên',                    N'Phu Yen'),
+    (N'Quảng Bình',                 N'Quang Binh'),
+    (N'Quảng Nam',                  N'Quang Nam'),
+    (N'Quảng Ngãi',                 N'Quang Ngai'),
+    (N'Quảng Ninh',                 N'Quang Ninh'),
+    (N'Quảng Trị',                  N'Quang Tri'),
+    (N'Sóc Trăng',                  N'Soc Trang'),
+    (N'Sơn La',                     N'Son La'),
+    (N'Tây Ninh',                   N'Tay Ninh'),
+    (N'Thái Bình',                  N'Thai Binh'),
+    (N'Thái Nguyên',                N'Thai Nguyen'),
+    (N'Thanh Hóa',                  N'Thanh Hoa'),
+    (N'Thừa Thiên Huế',             N'Thua Thien Hue'),
+    (N'Tiền Giang',                 N'Tien Giang'),
+    (N'Thành phố Hồ Chí Minh',     N'Ho Chi Minh City'),
+    (N'Trà Vinh',                   N'Tra Vinh'),
+    (N'Tuyên Quang',                N'Tuyen Quang'),
+    (N'Vĩnh Long',                  N'Vinh Long'),
+    (N'Vĩnh Phúc',                  N'Vinh Phuc'),
+    (N'Yên Bái',                    N'Yen Bai');
+    PRINT N'✓ 63 provinces seeded'
+END
+ELSE
+    PRINT N'⚠ Provinces already seeded - skipping'
+GO
+
+PRINT N'=== Address Book Migration Complete ==='
+PRINT N'  - Provinces table'
+PRINT N'  - UserAddresses table'
+PRINT N'  - Orders.shipping* snapshot columns'
+PRINT N'  - 63 provinces of Vietnam (if empty)'
 PRINT '  5. Test multilingual emails (password reset, verification)'
 PRINT ''
 PRINT 'For more information, see:'

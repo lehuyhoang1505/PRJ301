@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <%@ page import="models.Cart, models.CartItem, models.User" %>
+    <%@ page import="models.Cart, models.CartItem, models.User, models.UserAddress, java.util.List" %>
         <!DOCTYPE html>
         <html>
 
@@ -100,12 +100,69 @@
                     color: white;
                     border-color: #555;
                 }
+
+                .address-section {
+                    max-width: 700px;
+                    margin-bottom: 20px;
+                    background: #f9f9f9;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 14px 16px;
+                }
+
+                .address-section h3 { margin-top: 0; margin-bottom: 10px; font-size: 15px; }
+
+                .addr-option {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    padding: 8px 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    margin-bottom: 8px;
+                    cursor: pointer;
+                    background: white;
+                }
+
+                .addr-option:hover { border-color: #2196f3; background: #e3f2fd; }
+
+                .addr-option.selected { border-color: #2196f3; background: #e3f2fd; }
+
+                .addr-option input[type=radio] { margin-top: 3px; }
+
+                .addr-text { flex: 1; }
+
+                .addr-name { font-weight: bold; font-size: 14px; }
+
+                .addr-detail { font-size: 13px; color: #555; }
+
+                .badge-default { display: inline-block; font-size: 11px; font-weight: bold; background: #2196f3; color: white; padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+
+                .link-add-address { font-size: 13px; color: #2196f3; text-decoration: none; }
+
+                .link-add-address:hover { text-decoration: underline; }
             </style>
         </head>
 
         <body>
-            <% User currentUser=(User) session.getAttribute("user"); Cart cart=(Cart) request.getAttribute("cart");
-                double grandTotal=(cart !=null) ? cart.getTotalCost() : 0; %>
+            <% User currentUser=(User) session.getAttribute("user");
+               Cart cart=(Cart) request.getAttribute("cart");
+               double grandTotal=(cart !=null) ? cart.getTotalCost() : 0;
+               @SuppressWarnings("unchecked")
+               List<UserAddress> addresses = (List<UserAddress>) request.getAttribute("addresses");
+               String lang = (String) request.getAttribute("lang");
+               if (lang == null) lang = "vi";
+               // Find default address id for pre-selection
+               int defaultAddressId = -1;
+               if (addresses != null) {
+                   for (UserAddress a : addresses) {
+                       if (a.isDefault()) { defaultAddressId = a.getId(); break; }
+                   }
+                   if (defaultAddressId == -1 && !addresses.isEmpty()) {
+                       defaultAddressId = addresses.get(0).getId();
+                   }
+               }
+            %>
 
                 <h1>${i18n.get('checkout.title')}</h1>
                 <nav>
@@ -156,6 +213,36 @@
 
                 <div class="summary">
                     <form action="${pageContext.request.contextPath}/checkout" method="post">
+
+                        <%-- Address Selection Section --%>
+                        <div class="address-section">
+                            <h3>${i18n.get('checkout.selectAddress')}</h3>
+                            <% if (addresses != null && !addresses.isEmpty()) {
+                                for (UserAddress addr : addresses) {
+                                    boolean isSelected = addr.getId() == defaultAddressId;
+                                    String provinceName = addr.getProvince() != null ? addr.getProvince().getLocalizedName(lang) : "";
+                            %>
+                            <label class="addr-option <%= isSelected ? "selected" : "" %>" onclick="selectAddress(this)">
+                                <input type="radio" name="addressId" value="<%= addr.getId() %>"
+                                       <%= isSelected ? "checked" : "" %>
+                                       onchange="selectAddress(this.closest('.addr-option'))">
+                                <div class="addr-text">
+                                    <div class="addr-name">
+                                        <%= addr.getFullName() %> — <%= addr.getPhone() %>
+                                        <% if (addr.isDefault()) { %>
+                                        <span class="badge-default">${i18n.get('address.default')}</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="addr-detail">
+                                        <%= addr.getAddressDetail() %>, <%= addr.getWard() %>, <%= addr.getDistrict() %>, <%= provinceName %>
+                                    </div>
+                                </div>
+                            </label>
+                            <% } } %>
+                            <br>
+                            <a href="${pageContext.request.contextPath}/users/addresses?action=add" class="link-add-address">+ ${i18n.get('address.addNew')}</a>
+                        </div>
+
                         <h3 style="margin-top:0;">${i18n.get('checkout.paymentMethod')}</h3>
                         <div class="payment-option">
                             <label>
@@ -181,5 +268,14 @@
                 </div>
 
         </body>
+
+        <script>
+            function selectAddress(card) {
+                document.querySelectorAll('.addr-option').forEach(function(el) {
+                    el.classList.remove('selected');
+                });
+                card.classList.add('selected');
+            }
+        </script>
 
         </html>

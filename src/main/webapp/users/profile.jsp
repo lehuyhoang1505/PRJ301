@@ -118,6 +118,7 @@
                         <div class="actions">
                             <a href="${pageContext.request.contextPath}/users?action=edit"
                                 class="btn-edit">${i18n.get('profile.edit')}</a>
+                            <a href="${pageContext.request.contextPath}/users/addresses" class="btn-edit" style="background:#ff9800;border-color:#ff9800;">${i18n.get('nav.myAddresses')}</a>
                             <a href="${pageContext.request.contextPath}/users?action=delete" class="btn-del"
                                 onclick="return confirm('${i18n.get('profile.deleteConfirm')}')">${i18n.get('profile.deleteAccount')}</a>
                         </div>
