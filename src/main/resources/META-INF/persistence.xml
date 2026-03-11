@@ -7,6 +7,7 @@
         <class>models.Product</class>
         <class>models.Order</class>
         <class>models.OrderDetail</class>
+        <class>models.RefundRequest</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"   value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>

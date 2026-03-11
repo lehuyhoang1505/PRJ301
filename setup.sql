@@ -15,15 +15,19 @@ GO
 -- ====== Users Table ======
 CREATE TABLE Users
 (
-    userId      INT IDENTITY(1,1) PRIMARY KEY,
-    username    NVARCHAR(50)  NOT NULL UNIQUE,
-    password    NVARCHAR(50)  NOT NULL,
-    role        NVARCHAR(10)  NOT NULL CHECK (role IN (N'admin', N'user')),
-    name        NVARCHAR(100) NOT NULL,
-    gender      NVARCHAR(10)  NOT NULL CHECK (gender IN (N'male', N'female', N'other')),
-    dateOfBirth DATE          NOT NULL,
-    phone       NVARCHAR(20)  NULL,
-    email       NVARCHAR(100) NOT NULL UNIQUE
+    userId              INT IDENTITY(1,1) PRIMARY KEY,
+    username            NVARCHAR(50)  NOT NULL UNIQUE,
+    password            NVARCHAR(50)  NOT NULL,
+    role                NVARCHAR(10)  NOT NULL CHECK (role IN (N'admin', N'user')),
+    name                NVARCHAR(100) NOT NULL,
+    gender              NVARCHAR(10)  NOT NULL CHECK (gender IN (N'male', N'female', N'other')),
+    dateOfBirth         DATE          NOT NULL,
+    phone               NVARCHAR(20)  NULL,
+    email               NVARCHAR(100) NOT NULL UNIQUE,
+    isVerified          BIT           NOT NULL DEFAULT 0,
+    verificationCode    NVARCHAR(10)  NULL,
+    verificationToken   NVARCHAR(100) NULL,
+    verificationExpiry  DATETIME2     NULL
 );
 GO
 
@@ -54,10 +58,10 @@ CREATE TABLE Products
 GO
 
 -- ====== Sample Data: Users ======
-INSERT INTO Users (username, password, role, name, gender, dateOfBirth, phone, email) VALUES
-    (N'admin', N'admin123', N'admin', N'Administrator', N'other', '2000-01-01', NULL,          N'admin@example.com'),
-    (N'user1', N'user123',  N'user',  N'User One',      N'male',  '1995-05-15', N'0901000001', N'user1@example.com'),
-    (N'user2', N'user123',  N'user',  N'User Two',      N'female','1998-09-20', N'0901000002', N'user2@example.com');
+INSERT INTO Users (username, password, role, name, gender, dateOfBirth, phone, email, isVerified) VALUES
+    (N'admin', N'admin123', N'admin', N'Administrator', N'other', '2000-01-01', NULL,          N'admin@example.com', 1),
+    (N'user1', N'user123',  N'user',  N'User One',      N'male',  '1995-05-15', N'0901000001', N'user1@example.com', 1),
+    (N'user2', N'user123',  N'user',  N'User Two',      N'female','1998-09-20', N'0901000002', N'user2@example.com', 1);
 GO
 
 -- ====== Sample Data: Suppliers ======
@@ -86,11 +90,12 @@ GO
 CREATE TABLE Orders
 (
     id         INT IDENTITY(1,1) PRIMARY KEY,
-    userId     INT           NOT NULL REFERENCES Users(userId),
+    userId     INT           NULL     REFERENCES Users(userId),
     totalPrice FLOAT         NOT NULL DEFAULT 0,
     status     NVARCHAR(20)  NOT NULL DEFAULT 'Pending'
         CHECK (status IN (N'Pending', N'Processing', N'Shipped', N'Delivered',
-                          N'Completed', N'Cancelled', N'Deleted'))
+                          N'Completed', N'Cancelled', N'Deleted', N'Refunded'))
+    createdAt  DATE          NOT NULL DEFAULT CAST(GETDATE() AS DATE)
 );
 GO
 
@@ -109,11 +114,11 @@ GO
 -- ====== Sample Data: Orders ======
 -- user1 (userId=2): 2 orders
 -- user2 (userId=3): 1 order
-INSERT INTO Orders (userId, totalPrice, status) VALUES
-    (2, 2047000,  N'Completed'),   -- order 1: user1
-    (2, 565000,   N'Shipped'),     -- order 2: user1
-    (3, 6187000,  N'Pending'),     -- order 3: user2
-    (3, 215000,   N'Cancelled');   -- order 4: user2
+INSERT INTO Orders (userId, totalPrice, status, createdAt) VALUES
+    (2, 2047000,  N'Completed', '2026-03-01'),   -- order 1: user1
+    (2, 565000,   N'Shipped',   '2026-03-05'),   -- order 2: user1
+    (3, 6187000,  N'Pending',   '2026-03-08'),   -- order 3: user2
+    (3, 215000,   N'Cancelled', '2026-03-08');   -- order 4: user2
 GO
 
 -- ====== Sample Data: OrderDetails ======
@@ -139,3 +144,117 @@ GO
 INSERT INTO OrderDetails (orderId, productId, productName, quantity, price) VALUES
     (4, 8, N'HDMI Cable 2m', 1, 215000);
 GO
+
+
+
+
+CREATE TRIGGER trg_minus_stock_after_order
+ON OrderDetails
+AFTER INSERT
+AS
+BEGIN
+    UPDATE p
+    SET p.stock = p.stock - i.quantity
+    FROM Products p
+    JOIN inserted i ON p.id = i.productId
+END
+GO
+
+CREATE TRIGGER trg_restore_stock_when_cancel
+ON Orders
+AFTER UPDATE
+AS
+BEGIN
+    UPDATE p
+    SET p.stock = p.stock + od.quantity
+    FROM Products p
+    JOIN OrderDetails od ON p.id = od.productId
+    JOIN inserted i ON od.orderId = i.id
+    JOIN deleted d ON i.id = d.id
+    WHERE i.status = 'Cancelled'
+      AND d.status <> 'Cancelled'
+END
+GO
+
+-- ====== RefundRequests Table ======
+CREATE TABLE RefundRequests
+(
+    id            INT IDENTITY(1,1) PRIMARY KEY,
+    orderId       INT            NOT NULL REFERENCES Orders(id),
+    userId        INT            NOT NULL REFERENCES Users(userId),
+    reason        NVARCHAR(100)  NOT NULL,
+    description   NVARCHAR(1000) NULL,
+    status        NVARCHAR(30)   NOT NULL DEFAULT 'Pending'
+        CHECK (status IN (N'Pending', N'WaitForReturn', N'Verifying',
+                          N'Done', N'Rejected', N'Cancelled')),
+    returnAddress NVARCHAR(500)  NULL,
+    createdAt     DATETIME2      NOT NULL DEFAULT GETDATE()
+);
+GO
+
+-- ====== Migration: Add email verification columns to existing database ======
+-- Skip this block if you are creating the database fresh from the CREATE TABLE above.
+/*
+ALTER TABLE Users ADD
+    isVerified         BIT           NOT NULL DEFAULT 0,
+    verificationCode   NVARCHAR(10)  NULL,
+    verificationToken  NVARCHAR(100) NULL,
+    verificationExpiry DATETIME2     NULL;
+GO
+
+-- Mark all pre-existing users as verified so they can still log in.
+UPDATE Users SET isVerified = 1;
+GO
+*/
+
+
+-- ====== Migration: Add createdAt column to existing Orders table ======
+-- Skip this block if you are creating the database fresh from the CREATE TABLE above.
+/*
+ALTER TABLE Orders ADD
+    createdAt DATE NOT NULL DEFAULT CAST(GETDATE() AS DATE);
+GO
+*/
+
+-- ====== View: Daily Income Summary ======
+-- Shows completed income and pending income (un-complete orders) per day.
+CREATE OR ALTER VIEW vw_DailyIncome AS
+SELECT
+    createdAt                                                                  AS incomeDate,
+    SUM(CASE WHEN status = N'Completed'
+             THEN totalPrice ELSE 0 END)                                       AS completedIncome,
+    SUM(CASE WHEN status IN (N'Pending', N'Processing', N'Shipped', N'Delivered')
+             THEN totalPrice ELSE 0 END)                                       AS pendingIncome
+FROM Orders
+WHERE status NOT IN (N'Cancelled', N'Deleted')
+GROUP BY createdAt;
+GO
+
+-- ====== Migration: Add Refunded status to Orders + RefundRequests table ======
+-- Run this block if you already have the database.
+/*
+-- Drop the old CHECK constraint (find the name first with:
+--   SELECT name FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('Orders')
+-- then replace CK__Orders__status__XXXXXXXX with the actual name)
+ALTER TABLE Orders DROP CONSTRAINT CK__Orders__status__XXXXXXXX;
+GO
+ALTER TABLE Orders ADD CONSTRAINT CK_Orders_status
+    CHECK (status IN (N'Pending', N'Processing', N'Shipped', N'Delivered',
+                      N'Completed', N'Cancelled', N'Deleted', N'Refunded'));
+GO
+
+CREATE TABLE RefundRequests
+(
+    id            INT IDENTITY(1,1) PRIMARY KEY,
+    orderId       INT            NOT NULL REFERENCES Orders(id),
+    userId        INT            NOT NULL REFERENCES Users(userId),
+    reason        NVARCHAR(100)  NOT NULL,
+    description   NVARCHAR(1000) NULL,
+    status        NVARCHAR(30)   NOT NULL DEFAULT 'Pending'
+        CHECK (status IN (N'Pending', N'WaitForReturn', N'Verifying',
+                          N'Done', N'Rejected', N'Cancelled')),
+    returnAddress NVARCHAR(500)  NULL,
+    createdAt     DATETIME2      NOT NULL DEFAULT GETDATE()
+);
+GO
+*/

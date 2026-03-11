@@ -69,6 +69,19 @@ public class UserDAO {
         });
     }
 
+    public User findByVerificationToken(String token) {
+        return JpaHelper.query(em -> {
+            try {
+                return em.createQuery(
+                    "SELECT u FROM User u WHERE u.verificationToken = :token", User.class)
+                    .setParameter("token", token)
+                    .getSingleResult();
+            } catch (jakarta.persistence.NoResultException e) {
+                return null;
+            }
+        });
+    }
+
     public void insertUser(User user) {
         JpaHelper.execute(em -> em.persist(user));
     }
@@ -79,6 +92,12 @@ public class UserDAO {
 
     public void deleteUser(Integer userId) {
         JpaHelper.execute(em -> {
+            // Nullify userId on the user's orders to preserve order history
+            // (userId is now nullable so this satisfies the FK constraint).
+            em.createQuery("UPDATE Order o SET o.userId = NULL WHERE o.userId = :uid")
+              .setParameter("uid", userId)
+              .executeUpdate();
+
             User user = em.find(User.class, userId);
             if (user != null) em.remove(user);
         });
