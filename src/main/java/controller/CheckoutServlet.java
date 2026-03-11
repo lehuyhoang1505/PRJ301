@@ -1,8 +1,15 @@
 package controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import models.Cart;
 import models.CartItem;
 import models.Order;
@@ -11,26 +18,21 @@ import models.User;
 import models.UserAddress;
 import services.AddressService;
 import services.AddressServiceImpl;
+import services.EmailService;
 import services.OrderService;
 import services.OrderServiceImpl;
 import util.I18nUtil;
 import util.VNPayUtil;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import services.EmailService;
 
 /**
- * Checkout flow at /checkout.
- *
- * GET → show order summary + payment form (requires non-empty cart and
- * logged-in user) POST → place the order, clear cart, redirect to success page
- * or VNPay
+ * Checkout flow at /checkout. GET → show order summary + payment form (requires
+ * non-empty cart and logged-in user) POST → place the order, clear cart,
+ * redirect to success page or VNPay
  */
 @WebServlet(urlPatterns = {"/checkout"})
 public class CheckoutServlet extends HttpServlet {
 
-    private final OrderService   orderService   = new OrderServiceImpl();
+    private final OrderService orderService = new OrderServiceImpl();
     private final AddressService addressService = new AddressServiceImpl();
 
     @Override
@@ -100,7 +102,8 @@ public class CheckoutServlet extends HttpServlet {
                 if (addr != null && addr.getUserId().equals(user.getUserId())) {
                     selectedAddress = addr;
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
         // Fallback: use the default address if none explicitly selected
         if (selectedAddress == null) {
