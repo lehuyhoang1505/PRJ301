@@ -4,7 +4,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>${i18n.get('login.title')}</title>
+        <title>${i18n.get('forgot.title')}</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -21,12 +21,18 @@
                 padding: 30px 40px;
                 border-radius: 6px;
                 border: 1px solid #ccc;
-                width: 320px;
+                width: 360px;
             }
 
             h1 {
-                margin-bottom: 20px;
+                margin-bottom: 10px;
                 font-size: 22px;
+            }
+
+            .info {
+                font-size: 13px;
+                color: #666;
+                margin-bottom: 20px;
             }
 
             .form-group {
@@ -39,8 +45,7 @@
                 font-weight: bold;
             }
 
-            input[type="text"],
-            input[type="password"] {
+            input[type="email"] {
                 width: 100%;
                 padding: 7px;
                 box-sizing: border-box;
@@ -51,7 +56,7 @@
             button {
                 width: 100%;
                 padding: 9px;
-                background: #1565c0;
+                background: #e74c3c;
                 color: white;
                 border: none;
                 border-radius: 3px;
@@ -60,7 +65,7 @@
             }
 
             button:hover {
-                background: #0d47a1;
+                background: #c0392b;
             }
 
             .msg-error {
@@ -102,10 +107,12 @@
     <body>
         <div class="box">
             <div class="header-actions">
-                <a class="back-link" href="${pageContext.request.contextPath}/">${i18n.get('login.backToStore')}</a>
+                <a class="back-link" href="${pageContext.request.contextPath}/login">←
+                    ${i18n.get('forgot.backToLogin')}</a>
                 <%@ include file="/WEB-INF/includes/language-switcher.jsp" %>
             </div>
-            <h1>${i18n.get('login.title')}</h1>
+            <h1>🔑 ${i18n.get('forgot.title')}</h1>
+            <p class="info">${i18n.get('forgot.info')}</p>
 
             <% if (request.getAttribute("error") !=null) { %>
                 <p class="msg-error">
@@ -117,28 +124,19 @@
                             <%= request.getAttribute("success") %>
                         </p>
                         <% } %>
-                            <% String loginMsg=request.getParameter("msg"); if ("account_deleted".equals(loginMsg)) { %>
-                                <p class="msg-success">${i18n.get('login.accountDeleted')}</p>
-                                <% } %>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/login">
-                                        <div class="form-group">
-                                            <label for="username">${i18n.get('login.username')}</label>
-                                            <input type="text" id="username" name="username" required autofocus>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="password">${i18n.get('login.password')}</label>
-                                            <input type="password" id="password" name="password" required>
-                                        </div>
-                                        <button type="submit">${i18n.get('login.submit')}</button>
-                                    </form>
+                            <form method="post" action="${pageContext.request.contextPath}/forgot-password">
+                                <div class="form-group">
+                                    <label for="email">${i18n.get('forgot.email')}</label>
+                                    <input type="email" id="email" name="email" required autofocus>
+                                </div>
+                                <button type="submit">${i18n.get('forgot.submit')}</button>
+                            </form>
 
-                                    <div class="links">
-                                        ${i18n.get('login.noAccount')} <a
-                                            href="${pageContext.request.contextPath}/register">${i18n.get('login.registerLink')}</a><br>
-                                        <a
-                                            href="${pageContext.request.contextPath}/forgot-password">${i18n.get('login.forgotPassword')}</a>
-                                    </div>
+                            <div class="links">
+                                ${i18n.get('forgot.rememberPassword')} <a
+                                    href="${pageContext.request.contextPath}/login">${i18n.get('forgot.loginLink')}</a>
+                            </div>
         </div>
     </body>
 
