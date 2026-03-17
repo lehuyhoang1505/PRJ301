@@ -2,6 +2,7 @@
     <!DOCTYPE html>
     <html>
 
+<<<<<<< HEAD
     <head>
         <meta charset="UTF-8">
         <title>${i18n.get('login.title')}</title>
@@ -15,6 +16,23 @@
                 margin: 0;
                 background: #f0f0f0;
             }
+=======
+    <% if (request.getAttribute("error") != null) { %>
+        <p class="msg-error"><%= request.getAttribute("error") %></p>
+    <% } %>
+    <% if (request.getAttribute("success") != null) { %>
+        <p class="msg-success"><%= request.getAttribute("success") %></p>
+    <% } %>
+    <% String loginMsg = request.getParameter("msg");
+       if ("account_deleted".equals(loginMsg)) { %>
+        <p class="msg-success">Your account has been deleted.</p>
+    <% } %>
+    <% String successMessage = (String) session.getAttribute("successMessage");
+       if (successMessage != null) { %>
+        <p class="msg-success"><%= successMessage %></p>
+        <% session.removeAttribute("successMessage"); %>
+    <% } %>
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
             .box {
                 background: white;
@@ -142,4 +160,17 @@
         </div>
     </body>
 
+<<<<<<< HEAD
     </html>
+=======
+    <div class="links">
+        <a href="${pageContext.request.contextPath}/forgot-password">Forgot Password?</a>
+    </div>
+
+    <div class="links">
+        No account? <a href="${pageContext.request.contextPath}/register">Register</a>
+    </div>
+</div>
+</body>
+</html>
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315

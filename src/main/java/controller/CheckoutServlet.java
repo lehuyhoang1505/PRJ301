@@ -10,10 +10,17 @@ import models.OrderDetail;
 import models.User;
 import models.UserAddress;
 import services.AddressService;
+<<<<<<< HEAD
 import services.AddressServiceImpl;
 import services.OrderService;
 import services.OrderServiceImpl;
 import util.I18nUtil;
+=======
+import services.LoyaltyService;
+import services.OrderService;
+import services.OrderServiceImpl;
+import services.UserService;
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 import util.VNPayUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +38,13 @@ import services.EmailService;
 public class CheckoutServlet extends HttpServlet {
 
     private final OrderService   orderService   = new OrderServiceImpl();
+<<<<<<< HEAD
     private final AddressService addressService = new AddressServiceImpl();
+=======
+    private final LoyaltyService loyaltyService = new LoyaltyService();
+    private final UserService    userService    = new UserService();
+    private final AddressService addressService = new AddressService();
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,7 +64,15 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        // Check if user has at least one address
+        List<UserAddress> addresses = addressService.getAddressesByUserId(user.getUserId());
+        if (addresses.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/users/addresses?fromCheckout=true");
+            return;
+        }
+
         request.setAttribute("cart", cart);
+<<<<<<< HEAD
         // Load user's saved addresses for address selection
         List<UserAddress> addresses = addressService.getAddressesByUserId(user.getUserId());
         if (addresses.isEmpty()) {
@@ -60,6 +81,9 @@ public class CheckoutServlet extends HttpServlet {
         }
         request.setAttribute("addresses", addresses);
         request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
+=======
+        request.setAttribute("addresses", addresses);
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
         request.getRequestDispatcher("/cart/checkout.jsp").forward(request, response);
     }
 
@@ -86,9 +110,36 @@ public class CheckoutServlet extends HttpServlet {
             paymentMethod = "COD";
         }
 
+        // Get selected address (or use default)
+        String addressIdParam = request.getParameter("addressId");
+        UserAddress selectedAddress = null;
+        if (addressIdParam != null && !addressIdParam.isEmpty()) {
+            try {
+                int addressId = Integer.parseInt(addressIdParam);
+                selectedAddress = addressService.findAddressById(addressId);
+                // Validate address belongs to user
+                if (selectedAddress != null && !selectedAddress.getUserId().equals(user.getUserId())) {
+                    selectedAddress = null;
+                }
+            } catch (NumberFormatException e) {
+                // Invalid address ID
+            }
+        }
+        // Fallback to default address if none selected
+        if (selectedAddress == null) {
+            selectedAddress = addressService.findDefaultAddress(user.getUserId());
+        }
+
+        // Ensure we have a valid address
+        if (selectedAddress == null) {
+            response.sendRedirect(request.getContextPath() + "/users/addresses?fromCheckout=true");
+            return;
+        }
+
         // Calculate total
         double total = cart.getTotalCost();
 
+<<<<<<< HEAD
         // ── Resolve shipping address snapshot ─────────────────────────────
         UserAddress selectedAddress = null;
         String addressIdParam = request.getParameter("addressId");
@@ -119,6 +170,28 @@ public class CheckoutServlet extends HttpServlet {
             order.setShippingWard(selectedAddress.getWard());
             order.setShippingAddress(selectedAddress.getAddressDetail());
         }
+=======
+        // Apply loyalty points discount if requested
+        int usedPoints = 0;
+        String usePointsParam = request.getParameter("usePoints");
+        if ("on".equals(usePointsParam) && user.getPoints() > 0) {
+            double discount = Math.min(user.getPoints(), total);
+            total = total - discount;
+            usedPoints = (int) discount;
+        }
+
+        // Create order (status = "Pending" until payment is confirmed)
+        Order order = new Order(user.getUserId(), total, "Pending");
+
+        // Snapshot shipping address
+        order.setShippingFullName(selectedAddress.getFullName());
+        order.setShippingPhone(selectedAddress.getPhone());
+        order.setShippingProvinceId(selectedAddress.getProvinceId());
+        order.setShippingDistrict(selectedAddress.getDistrict());
+        order.setShippingWard(selectedAddress.getWard());
+        order.setShippingAddress(selectedAddress.getAddressDetail());
+
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
         Integer orderId = orderService.createOrder(order);
 
         // Add order details
@@ -143,6 +216,7 @@ public class CheckoutServlet extends HttpServlet {
         // Store order id in session for result pages
         session.setAttribute("lastOrderId", orderId);
         session.setAttribute("lastPaymentMethod", paymentMethod);
+        session.setAttribute("usedPoints", usedPoints);
 
         // ── VNPay online payment ──────────────────────────────────────────
         if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
@@ -175,6 +249,16 @@ public class CheckoutServlet extends HttpServlet {
         order.setId(orderId);
         order.setStatus("Processing");
         orderService.updateOrder(order);
+
+        // Record loyalty points usage and earning
+        if (usedPoints > 0) {
+            loyaltyService.usePoints(user.getUserId(), orderId, usedPoints);
+        }
+        loyaltyService.addPoints(user.getUserId(), orderId, total);
+
+        // Refresh session user with updated points/tier
+        User refreshed = userService.findById(user.getUserId());
+        if (refreshed != null) session.setAttribute("user", refreshed);
 
         // Clear cart
         session.removeAttribute("cart");

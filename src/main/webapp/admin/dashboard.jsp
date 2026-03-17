@@ -17,9 +17,25 @@
                                     background: #f5f5f5;
                                 }
 
+<<<<<<< HEAD
                                 h1 {
                                     margin-bottom: 6px;
                                 }
+=======
+<nav>
+    <a href="${pageContext.request.contextPath}/admin/dashboard"><strong>Dashboard</strong></a> |
+    <a href="${pageContext.request.contextPath}/admin/users">Users</a> |
+    <a href="${pageContext.request.contextPath}/admin/products">Products</a> |
+    <a href="${pageContext.request.contextPath}/admin/suppliers">Suppliers</a> |
+    <a href="${pageContext.request.contextPath}/admin/orders">Orders</a> |
+    <a href="${pageContext.request.contextPath}/admin/refunds">Refunds</a> |
+    <a href="${pageContext.request.contextPath}/admin/income">Income Report</a> |
+    <a href="${pageContext.request.contextPath}/admin/loyalty">Loyalty</a> |
+    <a href="${pageContext.request.contextPath}/admin/forecast">📈 Forecast</a> |
+    <a href="${pageContext.request.contextPath}/">Go to Shop</a> |
+    <a href="${pageContext.request.contextPath}/logout">Logout</a>
+</nav>
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
                                 .subtitle {
                                     color: #666;
@@ -30,11 +46,26 @@
                                     margin-bottom: 24px;
                                 }
 
+<<<<<<< HEAD
                                 nav a {
                                     margin-right: 12px;
                                     text-decoration: none;
                                     color: #333;
                                 }
+=======
+<div class="links" style="margin-top:32px;">
+    <h2>Quick Links</h2>
+    <ul>
+        <li><a href="${pageContext.request.contextPath}/admin/users">&#9654; Manage Users</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/products">&#9654; Manage Products</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/suppliers">&#9654; Manage Suppliers</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/orders">&#9654; Manage Orders</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/refunds">&#9654; Manage Refunds</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/income">&#9654; Income Report</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/loyalty">&#9654; Loyalty Management</a></li>
+    </ul>
+</div>
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
                                 nav a:hover {
                                     text-decoration: underline;
