@@ -25,6 +25,7 @@ public class Province implements Serializable {
     public Province() {}
 
     public Province(String nameVi, String nameEn) {
+<<<<<<< HEAD
         this.nameVi   = nameVi;
         this.nameEn   = nameEn;
         this.isActive = true;
@@ -49,6 +50,24 @@ public class Province implements Serializable {
         }
         return nameVi;
     }
+=======
+        this.nameVi = nameVi;
+        this.nameEn = nameEn;
+        this.isActive = true;
+    }
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getNameVi() { return nameVi; }
+    public void setNameVi(String nameVi) { this.nameVi = nameVi; }
+
+    public String getNameEn() { return nameEn; }
+    public void setNameEn(String nameEn) { this.nameEn = nameEn; }
+
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { this.isActive = active; }
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     @Override
     public String toString() {

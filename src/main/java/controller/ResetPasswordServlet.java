@@ -9,8 +9,14 @@ import services.UserService;
 import java.io.IOException;
 
 /**
+<<<<<<< HEAD
  * Handles password reset with token. GET: Show reset password form (validates
  * token) POST: Process new password and update
+=======
+ * Handles password reset with token.
+ * GET: Show reset password form (validates token)
+ * POST: Process new password and update
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
  */
 @WebServlet(urlPatterns = {"/reset-password"})
 public class ResetPasswordServlet extends HttpServlet {
@@ -84,9 +90,14 @@ public class ResetPasswordServlet extends HttpServlet {
             boolean success = userService.resetPassword(token, newPassword);
 
             if (success) {
+<<<<<<< HEAD
                 // Send confirmation email in user's preferred language
                 String language = user.getPreferredLanguage() != null ? user.getPreferredLanguage() : "en";
                 EmailService.sendPasswordChangedEmail(user.getEmail(), user.getName(), language);
+=======
+                // Send confirmation email
+                EmailService.sendPasswordChangedEmail(user.getEmail(), user.getName());
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
                 // Redirect to login with success message
                 HttpSession session = request.getSession();
@@ -98,6 +109,7 @@ public class ResetPasswordServlet extends HttpServlet {
                 request.getRequestDispatcher("/reset-password.jsp").forward(request, response);
             }
 
+<<<<<<< HEAD
         } catch (IllegalArgumentException e) {
             request.setAttribute("error", e.getMessage());
             request.setAttribute("token", token);
@@ -105,11 +117,16 @@ public class ResetPasswordServlet extends HttpServlet {
         } catch (ServletException | IOException e) {
             // Rethrow servlet exceptions
             throw e;
+=======
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
         } catch (Exception e) {
             request.setAttribute("error", "An error occurred. Please try again.");
             request.setAttribute("token", token);
             request.getRequestDispatcher("/reset-password.jsp").forward(request, response);
+<<<<<<< HEAD
             // Log error for debugging
+=======
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
             request.getServletContext().log("Error in reset password", e);
         }
     }

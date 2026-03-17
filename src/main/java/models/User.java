@@ -57,14 +57,33 @@ public class User implements Serializable {
     @Column(name = "verificationExpiry")
     private LocalDateTime verificationExpiry;
 
+<<<<<<< HEAD
+=======
+    @Column(name = "points", nullable = false)
+    private int points = 0;
+
+    @Column(name = "membershipTier", nullable = false, length = 20)
+    private String membershipTier = "Regular";
+
+    @Column(name = "lastPurchaseDate")
+    private LocalDateTime lastPurchaseDate;
+
+    @Column(name = "pointResetDate")
+    private LocalDateTime pointResetDate;
+
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
     @Column(name = "resetToken", length = 100)
     private String resetToken;
 
     @Column(name = "resetTokenExpiry")
     private LocalDateTime resetTokenExpiry;
 
+<<<<<<< HEAD
     public User() {
     }
+=======
+    public User() {}
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     public User(String username, String password, String role) {
         this.username = username;
@@ -212,6 +231,24 @@ public class User implements Serializable {
     public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
     }
+
+    public int getPoints() { return points; }
+    public void setPoints(int points) { this.points = points; }
+
+    public String getMembershipTier() { return membershipTier; }
+    public void setMembershipTier(String membershipTier) { this.membershipTier = membershipTier; }
+
+    public LocalDateTime getLastPurchaseDate() { return lastPurchaseDate; }
+    public void setLastPurchaseDate(LocalDateTime lastPurchaseDate) { this.lastPurchaseDate = lastPurchaseDate; }
+
+    public LocalDateTime getPointResetDate() { return pointResetDate; }
+    public void setPointResetDate(LocalDateTime pointResetDate) { this.pointResetDate = pointResetDate; }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     @Override
     public String toString() {

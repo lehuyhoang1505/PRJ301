@@ -20,6 +20,7 @@
                     margin-bottom: 20px;
                 }
 
+<<<<<<< HEAD
                 nav a {
                     margin-right: 10px;
                 }
@@ -191,3 +192,61 @@
         </body>
 
         </html>
+=======
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Category</th>
+            <th>Import Date</th>
+            <th>Supplier</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% if (products == null || products.isEmpty()) { %>
+            <tr><td colspan="8">No products found.</td></tr>
+        <% } else {
+            for (Product p : products) { %>
+            <tr>
+                <td><%= p.getId() %></td>
+                <td><%= p.getName() %></td>
+                <td><%= String.format("%,.0f", p.getPrice()) %> ₫</td>
+                <td><%= p.getStock() %></td>
+                <td><%= p.getCategory() != null ? p.getCategory() : "" %></td>
+                <td><%= p.getImportDate() != null ? p.getImportDate() : "" %></td>
+                <td><%= p.getSupplier() != null ? p.getSupplier().getName() : "-" %></td>
+                <td>
+                    <a href="${pageContext.request.contextPath}/admin/products?action=edit&id=<%= p.getId() %>" class="btn btn-edit">Edit</a>
+                    <a href="${pageContext.request.contextPath}/admin/products?action=delete&id=<%= p.getId() %>"
+                       class="btn btn-del"
+                       onclick="return confirm('Delete product <%= p.getName() %>?')">Delete</a>
+                </td>
+            </tr>
+        <% } } %>
+    </tbody>
+</table>
+
+<%
+    Long totalPages = (Long) request.getAttribute("totalPages");
+    Integer pageNumber = (Integer) request.getAttribute("pageNumber");
+    if (totalPages != null && totalPages > 1) {
+%>
+<div style="margin-top: 20px; text-align: center;">
+    <% if (pageNumber > 1) { %>
+        <a href="${pageContext.request.contextPath}/admin/products?page=1" class="btn">First</a>
+        <a href="${pageContext.request.contextPath}/admin/products?page=<%= pageNumber - 1 %>" class="btn">Previous</a>
+    <% } %>
+    <span style="margin: 0 10px;">Page <%= pageNumber %> of <%= totalPages %></span>
+    <% if (pageNumber < totalPages) { %>
+        <a href="${pageContext.request.contextPath}/admin/products?page=<%= pageNumber + 1 %>" class="btn">Next</a>
+        <a href="${pageContext.request.contextPath}/admin/products?page=<%= totalPages %>" class="btn">Last</a>
+    <% } %>
+</div>
+<% } %>
+</body>
+</html>
+>>>>>>> 2629b53241cb20e43abad513f899512798e38315
