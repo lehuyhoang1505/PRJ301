@@ -8,8 +8,6 @@ import java.time.LocalDate;
 @Table(name = "Orders")
 public class Order implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -26,27 +24,18 @@ public class Order implements Serializable {
     @Column(name = "createdAt", nullable = false)
     private LocalDate createdAt;
 
-<<<<<<< HEAD
-    // ── Shipping address snapshot ─────────────────────────────────────────────
-=======
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     @Column(name = "shippingFullName", length = 100)
     private String shippingFullName;
 
     @Column(name = "shippingPhone", length = 15)
     private String shippingPhone;
 
-<<<<<<< HEAD
-    @Column(name = "shippingProvince", length = 100)
-    private String shippingProvince;
-=======
     @Column(name = "shippingProvinceId")
     private Integer shippingProvinceId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shippingProvinceId", insertable = false, updatable = false)
     private Province shippingProvince;
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     @Column(name = "shippingDistrict", length = 100)
     private String shippingDistrict;
@@ -81,27 +70,6 @@ public class Order implements Serializable {
     public LocalDate getCreatedAt()                   { return createdAt; }
     public void setCreatedAt(LocalDate createdAt)     { this.createdAt = createdAt; }
 
-<<<<<<< HEAD
-    public String getShippingFullName()                         { return shippingFullName; }
-    public void setShippingFullName(String shippingFullName)    { this.shippingFullName = shippingFullName; }
-
-    public String getShippingPhone()                        { return shippingPhone; }
-    public void setShippingPhone(String shippingPhone)      { this.shippingPhone = shippingPhone; }
-
-    public String getShippingProvince()                         { return shippingProvince; }
-    public void setShippingProvince(String shippingProvince)    { this.shippingProvince = shippingProvince; }
-
-    public String getShippingDistrict()                         { return shippingDistrict; }
-    public void setShippingDistrict(String shippingDistrict)    { this.shippingDistrict = shippingDistrict; }
-
-    public String getShippingWard()                     { return shippingWard; }
-    public void setShippingWard(String shippingWard)    { this.shippingWard = shippingWard; }
-
-    public String getShippingAddress()                      { return shippingAddress; }
-    public void setShippingAddress(String shippingAddress)  { this.shippingAddress = shippingAddress; }
-
-    /** Returns true if this order has a shipping address snapshot. */
-=======
     public String getShippingFullName() { return shippingFullName; }
     public void setShippingFullName(String shippingFullName) { this.shippingFullName = shippingFullName; }
 
@@ -123,20 +91,16 @@ public class Order implements Serializable {
     public String getShippingAddress() { return shippingAddress; }
     public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     public boolean hasShippingAddress() {
         return shippingFullName != null && !shippingFullName.isEmpty();
     }
 
-<<<<<<< HEAD
-=======
     public String getFormattedShippingAddress() {
         if (!hasShippingAddress()) return "";
         String provinceName = (shippingProvince != null) ? shippingProvince.getNameVi() : "";
         return shippingAddress + ", " + shippingWard + ", " + shippingDistrict + ", " + provinceName;
     }
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     @Override
     public String toString() {
         return "Order{id=" + id + ", userId=" + userId

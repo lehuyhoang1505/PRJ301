@@ -10,17 +10,10 @@ import models.OrderDetail;
 import models.User;
 import models.UserAddress;
 import services.AddressService;
-<<<<<<< HEAD
-import services.AddressServiceImpl;
-import services.OrderService;
-import services.OrderServiceImpl;
-import util.I18nUtil;
-=======
 import services.LoyaltyService;
 import services.OrderService;
 import services.OrderServiceImpl;
 import services.UserService;
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
 import util.VNPayUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,13 +31,9 @@ import services.EmailService;
 public class CheckoutServlet extends HttpServlet {
 
     private final OrderService   orderService   = new OrderServiceImpl();
-<<<<<<< HEAD
-    private final AddressService addressService = new AddressServiceImpl();
-=======
     private final LoyaltyService loyaltyService = new LoyaltyService();
     private final UserService    userService    = new UserService();
     private final AddressService addressService = new AddressService();
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -72,18 +61,7 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         request.setAttribute("cart", cart);
-<<<<<<< HEAD
-        // Load user's saved addresses for address selection
-        List<UserAddress> addresses = addressService.getAddressesByUserId(user.getUserId());
-        if (addresses.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/users/addresses?noAddress=1");
-            return;
-        }
         request.setAttribute("addresses", addresses);
-        request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
-=======
-        request.setAttribute("addresses", addresses);
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         request.getRequestDispatcher("/cart/checkout.jsp").forward(request, response);
     }
 
@@ -139,38 +117,6 @@ public class CheckoutServlet extends HttpServlet {
         // Calculate total
         double total = cart.getTotalCost();
 
-<<<<<<< HEAD
-        // ── Resolve shipping address snapshot ─────────────────────────────
-        UserAddress selectedAddress = null;
-        String addressIdParam = request.getParameter("addressId");
-        if (addressIdParam != null && !addressIdParam.isEmpty()) {
-            try {
-                int addrId = Integer.parseInt(addressIdParam);
-                UserAddress addr = addressService.findAddressById(addrId);
-                // Security check: address must belong to the current user
-                if (addr != null && addr.getUserId().equals(user.getUserId())) {
-                    selectedAddress = addr;
-                }
-            } catch (NumberFormatException ignored) {}
-        }
-        // Fallback: use the default address if none explicitly selected
-        if (selectedAddress == null) {
-            selectedAddress = addressService.findDefaultAddress(user.getUserId());
-        }
-
-        // Create order — snapshot shipping address immediately
-        Order order = new Order(user.getUserId(), total, "Pending");
-        if (selectedAddress != null) {
-            String provinceNameVi = selectedAddress.getProvince() != null
-                    ? selectedAddress.getProvince().getNameVi() : "";
-            order.setShippingFullName(selectedAddress.getFullName());
-            order.setShippingPhone(selectedAddress.getPhone());
-            order.setShippingProvince(provinceNameVi);
-            order.setShippingDistrict(selectedAddress.getDistrict());
-            order.setShippingWard(selectedAddress.getWard());
-            order.setShippingAddress(selectedAddress.getAddressDetail());
-        }
-=======
         // Apply loyalty points discount if requested
         int usedPoints = 0;
         String usePointsParam = request.getParameter("usePoints");
@@ -191,7 +137,6 @@ public class CheckoutServlet extends HttpServlet {
         order.setShippingWard(selectedAddress.getWard());
         order.setShippingAddress(selectedAddress.getAddressDetail());
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         Integer orderId = orderService.createOrder(order);
 
         // Add order details

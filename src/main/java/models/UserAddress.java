@@ -49,46 +49,6 @@ public class UserAddress implements Serializable {
         this.createdAt = LocalDate.now();
     }
 
-<<<<<<< HEAD
-    public Integer getId()                  { return id; }
-    public void setId(Integer id)           { this.id = id; }
-
-    public Integer getUserId()              { return userId; }
-    public void setUserId(Integer userId)   { this.userId = userId; }
-
-    public String getFullName()                 { return fullName; }
-    public void setFullName(String fullName)    { this.fullName = fullName; }
-
-    public String getPhone()                { return phone; }
-    public void setPhone(String phone)      { this.phone = phone; }
-
-    public Integer getProvinceId()                  { return provinceId; }
-    public void setProvinceId(Integer provinceId)   { this.provinceId = provinceId; }
-
-    public Province getProvince()               { return province; }
-    public void setProvince(Province province)  { this.province = province; }
-
-    public String getDistrict()                 { return district; }
-    public void setDistrict(String district)    { this.district = district; }
-
-    public String getWard()                 { return ward; }
-    public void setWard(String ward)        { this.ward = ward; }
-
-    public String getAddressDetail()                    { return addressDetail; }
-    public void setAddressDetail(String addressDetail)  { this.addressDetail = addressDetail; }
-
-    public boolean isDefault()                  { return isDefault; }
-    public void setDefault(boolean isDefault)   { this.isDefault = isDefault; }
-
-    public LocalDate getCreatedAt()                     { return createdAt; }
-    public void setCreatedAt(LocalDate createdAt)       { this.createdAt = createdAt; }
-
-    /**
-     * Returns a single-line formatted address string in the given language.
-     */
-    public String getFormattedAddress(String lang) {
-        String provinceName = (province != null) ? province.getLocalizedName(lang) : "";
-=======
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -127,7 +87,6 @@ public class UserAddress implements Serializable {
      */
     public String getFormattedAddress() {
         String provinceName = (province != null) ? province.getNameVi() : "";
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         return addressDetail + ", " + ward + ", " + district + ", " + provinceName;
     }
 }

@@ -2,15 +2,6 @@ package controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-<<<<<<< HEAD
-import jakarta.servlet.http.*;
-import models.User;
-import models.UserAddress;
-import models.Province;
-import services.AddressService;
-import services.AddressServiceImpl;
-import util.I18nUtil;
-=======
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,33 +10,15 @@ import models.Province;
 import models.User;
 import models.UserAddress;
 import services.AddressService;
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
+import services.AddressServiceImpl;
 
 import java.io.IOException;
 import java.util.List;
 
-<<<<<<< HEAD
-/**
- * User address book management at /users/addresses.
- *
- * GET  (default)          → list all addresses
- * GET  action=add         → show add form
- * GET  action=edit&id=X   → show edit form
- * GET  action=delete&id=X → delete address, redirect to list
- * GET  action=setDefault&id=X → set address as default, redirect to list
- * POST action=add         → save new address
- * POST action=edit        → update address
- */
 @WebServlet(urlPatterns = {"/users/addresses"})
 public class AddressServlet extends HttpServlet {
 
     private final AddressService addressService = new AddressServiceImpl();
-=======
-@WebServlet(urlPatterns = {"/users/addresses"})
-public class AddressServlet extends HttpServlet {
-
-    private final AddressService addressService = new AddressService();
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,13 +31,6 @@ public class AddressServlet extends HttpServlet {
         if (action == null) action = "";
 
         switch (action) {
-<<<<<<< HEAD
-            case "add":        showForm(request, response, user, null);   break;
-            case "edit":       showEditForm(request, response, user);     break;
-            case "delete":     deleteAddress(request, response, user);    break;
-            case "setDefault": setDefault(request, response, user);       break;
-            default:           listAddresses(request, response, user);    break;
-=======
             case "add":
                 showForm(request, response, null);
                 break;
@@ -80,7 +46,6 @@ public class AddressServlet extends HttpServlet {
             default:
                 listAddresses(request, response, user);
                 break;
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         }
     }
 
@@ -99,18 +64,10 @@ public class AddressServlet extends HttpServlet {
         }
     }
 
-<<<<<<< HEAD
-    // ── Handlers ─────────────────────────────────────────────────────────────
-
-=======
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     private void listAddresses(HttpServletRequest request, HttpServletResponse response, User user)
             throws ServletException, IOException {
         List<UserAddress> addresses = addressService.getAddressesByUserId(user.getUserId());
         request.setAttribute("addresses", addresses);
-<<<<<<< HEAD
-        request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
-=======
 
         // Pass checkout redirect flag
         String fromCheckout = request.getParameter("fromCheckout");
@@ -118,7 +75,6 @@ public class AddressServlet extends HttpServlet {
             request.setAttribute("fromCheckout", true);
         }
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         request.getRequestDispatcher("/users/addresses.jsp").forward(request, response);
     }
 
@@ -129,10 +85,7 @@ public class AddressServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/users/addresses");
             return;
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         int id;
         try {
             id = Integer.parseInt(idParam);
@@ -140,36 +93,21 @@ public class AddressServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/users/addresses");
             return;
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         UserAddress address = addressService.findAddressById(id);
         if (address == null || !address.getUserId().equals(user.getUserId())) {
             response.sendRedirect(request.getContextPath() + "/users/addresses?error=notfound");
             return;
         }
-<<<<<<< HEAD
-        showForm(request, response, user, address);
-    }
-
-    private void showForm(HttpServletRequest request, HttpServletResponse response,
-                          User user, UserAddress address)
-=======
 
         showForm(request, response, address);
     }
 
     private void showForm(HttpServletRequest request, HttpServletResponse response, UserAddress address)
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
             throws ServletException, IOException {
         List<Province> provinces = addressService.getActiveProvinces();
         request.setAttribute("provinces", provinces);
         request.setAttribute("address", address);
-<<<<<<< HEAD
-        request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
-=======
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         request.getRequestDispatcher("/users/address-form.jsp").forward(request, response);
     }
 
@@ -178,19 +116,6 @@ public class AddressServlet extends HttpServlet {
         UserAddress address = bindAddress(request);
         address.setUserId(user.getUserId());
 
-<<<<<<< HEAD
-        String err = addressService.addAddress(address);
-        if (err != null) {
-            request.setAttribute("error", I18nUtil.getMessage(request, err));
-            request.setAttribute("address", address);
-            List<Province> provinces = addressService.getActiveProvinces();
-            request.setAttribute("provinces", provinces);
-            request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
-            request.getRequestDispatcher("/users/address-form.jsp").forward(request, response);
-            return;
-        }
-        response.sendRedirect(request.getContextPath() + "/users/addresses?success=added");
-=======
         try {
             addressService.addAddress(address);
             response.sendRedirect(request.getContextPath() + "/users/addresses?success=added");
@@ -200,7 +125,6 @@ public class AddressServlet extends HttpServlet {
             request.setAttribute("provinces", addressService.getActiveProvinces());
             request.getRequestDispatcher("/users/address-form.jsp").forward(request, response);
         }
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     }
 
     private void updateAddress(HttpServletRequest request, HttpServletResponse response, User user)
@@ -210,10 +134,7 @@ public class AddressServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/users/addresses");
             return;
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         int id;
         try {
             id = Integer.parseInt(idParam);
@@ -221,10 +142,7 @@ public class AddressServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/users/addresses");
             return;
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         UserAddress existing = addressService.findAddressById(id);
         if (existing == null || !existing.getUserId().equals(user.getUserId())) {
             response.sendRedirect(request.getContextPath() + "/users/addresses?error=notfound");
@@ -236,23 +154,6 @@ public class AddressServlet extends HttpServlet {
         address.setUserId(user.getUserId());
         address.setCreatedAt(existing.getCreatedAt());
 
-<<<<<<< HEAD
-        String err = addressService.updateAddress(address);
-        if (err != null) {
-            request.setAttribute("error", I18nUtil.getMessage(request, err));
-            request.setAttribute("address", address);
-            List<Province> provinces = addressService.getActiveProvinces();
-            request.setAttribute("provinces", provinces);
-            request.setAttribute("lang", I18nUtil.getCurrentLanguage(request));
-            request.getRequestDispatcher("/users/address-form.jsp").forward(request, response);
-            return;
-        }
-        response.sendRedirect(request.getContextPath() + "/users/addresses?success=updated");
-    }
-
-    private void deleteAddress(HttpServletRequest request, HttpServletResponse response, User user)
-            throws ServletException, IOException {
-=======
         try {
             addressService.updateAddress(address);
             response.sendRedirect(request.getContextPath() + "/users/addresses?success=updated");
@@ -266,60 +167,36 @@ public class AddressServlet extends HttpServlet {
 
     private void deleteAddress(HttpServletRequest request, HttpServletResponse response, User user)
             throws IOException {
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         String idParam = request.getParameter("id");
         if (idParam != null) {
             try {
                 int id = Integer.parseInt(idParam);
                 addressService.deleteAddress(id, user.getUserId());
-<<<<<<< HEAD
-            } catch (NumberFormatException ignored) {}
-=======
             } catch (IllegalArgumentException e) {
                 // Ignore errors, just redirect
             }
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         }
         response.sendRedirect(request.getContextPath() + "/users/addresses?success=deleted");
     }
 
     private void setDefault(HttpServletRequest request, HttpServletResponse response, User user)
-<<<<<<< HEAD
-            throws ServletException, IOException {
-=======
             throws IOException {
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         String idParam = request.getParameter("id");
         if (idParam != null) {
             try {
                 int id = Integer.parseInt(idParam);
                 addressService.setDefaultAddress(id, user.getUserId());
-<<<<<<< HEAD
-            } catch (NumberFormatException ignored) {}
-=======
             } catch (IllegalArgumentException e) {
                 // Ignore errors, just redirect
             }
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         }
         response.sendRedirect(request.getContextPath() + "/users/addresses?success=defaultSet");
     }
 
-<<<<<<< HEAD
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-=======
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
     private UserAddress bindAddress(HttpServletRequest request) {
         UserAddress a = new UserAddress();
         a.setFullName(trim(request.getParameter("fullName")));
         a.setPhone(trim(request.getParameter("phone")));
-<<<<<<< HEAD
-        String provId = request.getParameter("provinceId");
-        if (provId != null && !provId.isEmpty()) {
-            try { a.setProvinceId(Integer.parseInt(provId)); } catch (NumberFormatException ignored) {}
-        }
-=======
 
         String provId = request.getParameter("provinceId");
         if (provId != null && !provId.isEmpty()) {
@@ -330,7 +207,6 @@ public class AddressServlet extends HttpServlet {
             }
         }
 
->>>>>>> 2629b53241cb20e43abad513f899512798e38315
         a.setDistrict(trim(request.getParameter("district")));
         a.setWard(trim(request.getParameter("ward")));
         a.setAddressDetail(trim(request.getParameter("addressDetail")));
